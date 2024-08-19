@@ -22,7 +22,7 @@ type LogEntry struct {
 func main() {
 	logWithTime("Starting change retention...")
 
-	kafkaIP := getEnv("KAFKA_IP", "localhost")
+	kafkaIP := getEnv("KAFKA_IP", "i100ntesia-nma-kfk01.tc.egov.local")
 	kafkaPort := getEnv("KAFKA_PORT", "9092")
 	retentionMS := getEnv("RETENTION_MS", "1900000")              // 30m
 	deleteRetentionMS := getEnv("DELETE_RETENTION_MS", "1900000") // 30m
@@ -93,7 +93,7 @@ func main() {
 			logWithTime(fmt.Sprintf("Need to update retention.ms: currentRetentionMS=%s > retentionMS=%s", currentRetentionMS, retentionMS))
 			configToUpdate["retention.ms"] = &retentionMS
 		} else {
-			// Сохранение текущего конфига
+			// Save current retention 
 			configToUpdate["retention.ms"] = &currentRetentionMS
 		}
 
@@ -101,7 +101,7 @@ func main() {
 			logWithTime(fmt.Sprintf("Need to update delete.retention.ms: currentDeleteRetentionMS=%s > deleteRetentionMS=%s", currentDeleteRetentionMS, deleteRetentionMS))
 			configToUpdate["delete.retention.ms"] = &deleteRetentionMS
 		} else {
-			// Сохранение текущего конфига
+			// Save current delete.retention
 			configToUpdate["delete.retention.ms"] = &currentDeleteRetentionMS
 		}
 
@@ -135,7 +135,7 @@ func logWithTime(message string) {
 	fmt.Println(string(jsonData))
 }
 
-// getEnv возвращает значение по умолчанию, если внешняя переменная не существует
+// getEnv take dafault value if env not exist
 func getEnv(key, defaultValue string) string {
 	if value, exists := os.LookupEnv(key); exists {
 		return value
@@ -144,7 +144,7 @@ func getEnv(key, defaultValue string) string {
 	return defaultValue
 }
 
-// sendTelegramMessage отправляет сообщение в Telegram
+// sendTelegramMessage sent message to tg
 func sendTelegramMessage(token, chatID, message string) {
 	if token == "" || chatID == "" {
 		logWithTime("Telegram token or chat ID is not set, skipping Telegram notification.💩")
@@ -169,7 +169,7 @@ func sendTelegramMessage(token, chatID, message string) {
 	}
 }
 
-// getConfigValue получает значение определенного параметра из sarama.ConfigEntries
+// getConfigValue take current value from sarama.ConfigEntries
 func getConfigValue(configEntries []sarama.ConfigEntry, configName string) string {
 	for _, entry := range configEntries {
 		if entry.Name == configName {
@@ -179,7 +179,7 @@ func getConfigValue(configEntries []sarama.ConfigEntry, configName string) strin
 	return ""
 }
 
-// compareMSValues сравнивает текущие и целевые значения времени хранения в миллисекундах
+// compareMSValues compare current and target value of values in ms
 func compareMSValues(currentValue, targetValue string) bool {
 	currentMS, err1 := strconv.ParseInt(currentValue, 10, 64)
 	targetMS, err2 := strconv.ParseInt(targetValue, 10, 64)
